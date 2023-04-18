@@ -4,6 +4,8 @@ from genre.models import Genre
 from author.models import Author
 from language.models import Language
 import uuid # Required for unique book instances
+from datetime import date
+from django.contrib.auth.models import User
 from django.conf import settings
 
 # Create your models here.
@@ -29,9 +31,15 @@ class Book (models.Model):
         """String for representing the Model object."""
         return self.title
 
-    def get_absolute_url(self):
-        """Returns the URL to access a detail record for this book."""
-        return reverse('book-detail', args=[str(self.id)])
+    # def get_absolute_url(self):
+    #     """Returns the URL to access a detail record for this book."""
+    #     return reverse('book-detail', args=[str(self.id)])
+
+    def display_genre(self):
+        """Create a string for the Genre. This is required to display genre in Admin."""
+        return ', '.join(genre.name for genre in self.genre.all()[:3])
+
+    display_genre.short_description = 'Genre'
 
     class Meta:
         db_table = settings.DB_PREFIX + "books"
@@ -45,6 +53,12 @@ class BookInstance(models.Model):
     book = models.ForeignKey(Book, on_delete=models.RESTRICT, null=True)
     imprint = models.CharField(max_length=200)
     due_back = models.DateField(null=True, blank=True)
+    borrower = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+
+    @property
+    def is_overdue(self):
+        """Determines if the book is overdue based on due date and current date."""
+        return "Yes" if (self.due_back and date.today() > self.due_back) else "No"
 
     LOAN_STATUS = (
         ('m', 'Maintenance'),

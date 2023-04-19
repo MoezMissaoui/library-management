@@ -22,8 +22,3 @@ from django.urls import include
 urlpatterns = [
     path('', admin.site.urls),
 ]
-
-
-urlpatterns += [
-    path('catalog/', include('book.urls')),
-]

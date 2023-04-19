@@ -25,5 +25,5 @@ urlpatterns = [
 
 
 urlpatterns += [
-    path('book/', include('book.urls')),
+    path('catalog/', include('book.urls')),
 ]
